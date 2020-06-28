@@ -1,5 +1,7 @@
 # betweenthepipes
 
+![betweenthepipes logo](https://github.com/meghall06/personal-website/blob/master/static/img/pipes_logo.png)
+
 `betweenthepipes` is an R package that currently holds two tutorials, created with [learnr](https://rstudio.github.io/learnr/index.html).
 
 ### How to Access
