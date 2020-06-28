@@ -1,0 +1,223 @@
+---
+title: "Data Manipulation"
+subtitle: "Meghan Hall"
+author: "@MeghanMHall"
+output: learnr::tutorial
+runtime: shiny_prerendered
+description: A beginner-friendly introduction to R and the tidyverse with sample hockey data.
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(tidyverse)
+knitr::opts_chunk$set(echo = FALSE)
+hockey_data <- read_csv("PHI_tutorial_data.csv")
+skater_data <- read_csv("skater_bio.csv")
+hockey_data_pivot <- hockey_data %>%
+  select(game_id, event_index, event_length, 
+         home_on_1:away_on_7, home_goalie, away_goalie) %>%
+  pivot_longer(cols = home_on_1:away_on_7, 
+               names_to = "on_ice",
+               values_to = "player_name") %>%
+  filter(!is.na(player_name) & event_length > 0 & 
+         player_name != home_goalie & player_name != away_goalie) %>%
+  select(-c(home_goalie, away_goalie))
+tutorial_options(exercise.cap = "betweenthepipes")
+```
+
+## Introduction
+
+This tutorial assumes that you have some exposure to R and are familiar with the basics of the common tidyverse functions: `filter()`, `mutate()`, `group_by()`, and `summarize()`. In this tutorial, we'll move beyond the very basics of data manipulation and go further by learning about more functions and methods and asking more advanced questions of our data. We'll use functions from some of the associated tidyverse packages like `stringr` and `forcats` and `lubridate` while we grasp the concepts of pivoting data, joining data, and writing our own functions.
+
+The data we'll use in this tutorial comes from the same `hockey_data` data set used in the other tutorials in this package. It's four games' worth of NHL play-by-play data from November 2019. In the code block below, you can use the `glimpse()` function or other similar functions to quickly explore the data set.
+
+```{r intro, exercise = TRUE, exercise.eval = FALSE}
+
+```
+
+## Pivoting Data
+
+Learning how to pivot data is an *essential* skill for more advanced data manipulation. Pivoting data can seem like an abstract concept at first, but once you start using it, it really opens up the analysis possibilities for your data and allows you to view the data from different perspectives.
+
+The tidyverse functions for pivoting data used to be `spread()` and `gather()` (which still work, and you will still see them referenced in R code), but the two new functions that replaced them are `pivot_longer()` and `pivot_wider()`. Those are the two functions we'll be using in this section and they are (in my opinion!) much more intuitive and easier to learn. `pivot_longer()` makes your data set longer, in that you'll have more rows, and `pivot_wider()` will make the data set wider with more columns.
+
+Let's go through an example to illustrate how pivoting works. Our `hockey_data` data frame has one row per tracked event. That is, each faceoff, each goal, each line change, etc., has its own row (or observation). For each event, we have more details such as the strength state and the score state at that time, the players on the ice, and the location of the event. That structure makes it easy to analyze these data along those measures. (In the intro tutorial, we were able to find out things such as which player scored the most goals and which team had the best shooting percentage.) But what if we want to measure our data in a different way?
+
+In hockey, players accumulate points by either scoring a goal or by contributing a primary or a secondary assist on a goal. So what if we wanted to know which player had the most points in our data set? It sounds like a very easy question, but it's not actually possible to answer easily with the data set that we have -- at least not without a little manipulation. And that's because our observation perspective has changed.
+
+A key principle of *tidy data* (to which the *tidy*verse is devoted) is that each row is an observation and each column is a variable. The way our data set is structured now, there is one row per event. If we're observing events, then this is ideal. But if we're observing *players*, which is necessary to answer our points question, it won't really work. 
+
+Take a look at the example below. This is a goal event in this data set, shown with the event players. (In this data set, `event_player_1` is the player who scored the goal, `event_player_2` is the one with the primary assist, and `event_player_3` is the one with the secondary assist.) If *events* were our observation of interest, then this works: one row is one goal. But if we care about the players and their points, it doesn't. This row might only be one observation of a goal, but it's actually *three* observations of points: each of those three players gets a point off this goal. That violates the tidy data principle, so in order to do this calculation we need to pivot data.
+
+```{r example}
+hockey_data %>%
+  filter(game_id == "2019020336" & event_index == 34) %>%
+  select(event_index, event_type, event_team, event_player_1, event_player_2, event_player_3)
+
+```
+
+Instead, we want our data to look like this, and we can do that with `pivot_longer()`.
+
+```{r example2}
+hockey_data %>%
+  filter(game_id == "2019020336" & event_index == 34) %>%
+  select(event_index, event_type, event_team, event_player_1:event_player_3) %>%
+  pivot_longer(event_player_1:event_player_3, names_to = "event_player",
+               values_to = "player")
+
+```
+
+A simple `pivot_longer()` function like we're using here will have three arguments: 1) `cols`: the variables we want to pivot (here, the event_player variables), 2) `names_to`: what the new variable of the old variable names should be called and 3) `values_to`: what the new variable of the values should be called.
+
+*Fill out the code below. Filter `event_type` to `GOAL`, and use `select()` to narrow our scope to the following variables: `event_index`, `event_type`, `event_team`, `event_player_1`, `event_player_2`, and `event_player_3`. Since those last three variables are all sequential in the data set, you can select them with `event_player_1:event_player_3`. The `cols` argument in `pivot_longer` should also have `event_player_1:event_player_3`. Use `"event_player"` for `names_to` and `"player"` for `values_to`. If you're stuck, click the Solution button.*
+
+```{r pivot, exercise = TRUE, exercise.eval = FALSE}
+hockey_data %>%
+  filter() %>%
+  select() %>%
+  pivot_longer(cols = , 
+               names_to = ,
+               values_to = )
+
+```
+
+```{r pivot-solution}
+hockey_data %>%
+  filter(event_type == "GOAL") %>%
+  select(event_index, event_type, event_team, event_player_1:event_player_3) %>%
+  pivot_longer(cols = event_player_1:event_player_3, 
+               names_to = "event_player",
+               values_to = "player")
+
+```
+
+The output above should show you pivoted data: instead of one row per goal event, we now have three rows per goal event: one for each of the players who registered a point. If we wanted to see a list of all the players with their total points, all we would need to do is add `count(player)`. 
+
+We've now seen `pivot_longer()`, so how about `pivot_wider()`? Let's say we were interested in how the home team's score changed throughout the game, by period, and for our hypothetical analysis, we needed each game period to be its own separate column. `pivot_wider()` is the function for this task, as we want to add columns to our data set.
+
+*Fill out the code below. The variables we want to select are `game_id`, `game_period`, `home_score`, and `home_team`. The `names_from` is `game_period` (as that will inform our column names), and `values_from`, the values of those new variables, will be `event_period`. The `values_fn` argument, which is already complete, indicates that we want the `max` of the `home_score` variable (as there are likely multiple values of this variable in each `game_period`).*
+
+```{r pivotw, exercise = TRUE, exercise.eval = FALSE}
+hockey_data %>%
+  select() %>%
+  pivot_wider(names_from = ,
+               values_from = ,
+               values_fn = list(home_score = max))
+
+```
+
+```{r pivotw-solution}
+hockey_data %>%
+  select(game_id, game_period, home_score, home_team) %>%
+  pivot_wider(names_from = "game_period",
+               values_from = "home_score",
+               values_fn = list(home_score = max))
+
+```
+
+As you can see in the output above, we kept the `game_id` and `home_team` variables as in the original, but `game_period` and `home_score` (the maximum value) were pivoted into more columns.
+
+These functions can easily handle more complex pivoting tasks (such as creating or pivoting multiple columns), but the two examples we just did cover the basics. We'll go through another pivoting example in the next section, as well.
+
+## Joining Data
+
+Joining data, or combining different sources of data based on common identifiers, is another essential skill of data manipulation as it allows you to greatly expand the analysis capability of uour data. What if we wanted to know, from our original NHL play-by-play data set, which defensemen played the most minutes in each game? We have the event data, i.e., it would be easy enough to figure out how many minutes each skater played in each game, but there aren't any positional designations in that data set. In other words, we don't know which players are defensemen and which are forwards -- we need another data source.
+
+The data set `skater_data` (downloaded from [NaturalStatTrick](http://www.naturalstattrick.com/)) shown below includes basic biographic information for the players associated with the five teams in this data set. I've used the `head()` function to show the first five observations of this data set; feel free to explore it further. 
+
+```{r bio, exercise = TRUE, exercise.eval = TRUE}
+head(skater_data, n = 5)
+```
+
+We now have one data source with our playing time information (`hockey_data`) and one data source with our position data (`player_data`). With both of those pieces of information we can answer our question of interest (which defensemen played the most minutes), but how to we put them together?
+
+The `left_join()` function. There are different types of joins for different ways to move your data, but the most common, and the one we're using here, is the `left_join()`.  These different data sources can be collectively referred to as *relational data* because we're interested in the relationships between the different data sources. These variables that connect the data sources are known as keys. For this join, 
+
+The `skater_data` data set above has one row per player, and if you remember from the previous section on pivoting data, our play-by-play data has one row per *event*. These aren't the same levels of observation, so we need to pivot `hockey_data` first before we can join this data.
+
+```{r pivot2, exercise = TRUE, exercise.eval = FALSE}
+hockey_data %>%
+  select(game_id, event_index, event_length, home_on_1:away_on_7, home_goalie, away_goalie) %>%
+  pivot_longer(cols = home_on_1:away_on_7, 
+               names_to = "on_ice",
+               values_to = "player_name") %>%
+  filter(!is.na(player_name) & event_length > 0 & player_name != home_goalie & player_name != away_goalie) %>%
+  select(-c(home_goalie, away_goalie))
+
+```
+
+```{r pivot2-solution}
+hockey_data %>%
+  select(game_id, event_index, event_length, home_on_1:away_on_7, home_goalie, away_goalie) %>%
+  pivot_longer(cols = home_on_1:away_on_7, 
+               names_to = "on_ice",
+               values_to = "player_name") %>%
+  filter(!is.na(player_name) & event_length > 0 & player_name != home_goalie & player_name != away_goalie) %>%
+  select(-c(home_goalie, away_goalie))
+```
+
+I've saved the output of that code to another data frame called `hockey_data_pivot`. Now our play-by-play data has one row per player to match our positional data, but there's one more step we need to take before we can join our data frames together. If you look at the output from the code above and the output from the `skater_data` data set before that, you'll notice that the formatting of our player names (which is the key that relates these two data frames together) is different. In the `skater_data` table, the names are formatted as you might expect: `Adam Gaudette`. But in our new `hockey_data_pivot` table, they look a little different: `ADAM.GAUDETTE`.
+
+Thankfully, the `stringr` package has functions that can help us get there. `stringr`, which is a package that's part of the tidyverse, is incredibly useful for dealing with string data, and we'll use two of its functions, `str_to_upper()` and `str_replace_all` to make the player names in `skater_data` to match the player names in `hockey_data_pivot`. `str_to_upper()` will convert the entire string to upper case, while `str_replace_all` will replace each space character with a period.
+
+*Let's try `str_to_upper()`. First, add the `Player` and `Position` names to the `select()` function, as those are the only variables we need right now. We're using `mutate()` to create a new variable called `player_name`. Just add the original variable `Player` as the only argument to the `str_to_upper()` function.*
+
+```{r stringr, exercise = TRUE, exercise.eval = FALSE}
+skater_data %>%
+  select() %>%
+  mutate(player_name = str_to_upper())
+```
+
+```{r stringr-solution}
+skater_data %>%
+  select(Player, Position) %>%
+  mutate(player_name = str_to_upper(Player))
+```
+
+As you can see above, our new `player_name` variable is now in upper case! To get rid of the space and replace it with a period, we'll use another `mutate()` function with the same `player_name` variable and use `str_replace_all`. 
+
+*Complete the `str_replace_all` function in the code below. That function has three arguments: the variable of interest (`player_name`), the character to replace (`" "`), and the character that's replacing it (`"."`).*
+
+```{r stringr2, exercise = TRUE, exercise.eval = FALSE}
+skater_data %>%
+  select(Player, Position) %>%
+  mutate(player_name = str_to_upper(Player),
+         player_name = str_replace_all())
+```
+
+```{r stringr2-solution}
+skater_data %>%
+  select(Player, Position) %>%
+  mutate(player_name = str_to_upper(Player),
+         player_name = str_replace_all(player_name, " ", "."))
+```
+
+
+```{r, echo = FALSE}
+skater_data %>%
+  count(Position, sort = TRUE)
+```
+
+
+```{r position, exercise = TRUE, exercise.eval = FALSE}
+skater_data %>%
+  select(Player, Position) %>%
+  mutate(player_name = str_to_upper(Player),
+         player_name = str_replace_all(player_name, " ", "."),
+         D_F = ifelse())
+```
+
+```{r position-solution}
+skater_data %>%
+  select(Player, Position) %>%
+  mutate(player_name = str_to_upper(Player),
+         player_name = str_replace_all(player_name, " ", "."),
+         D_F = ifelse(Position == "D", "D", "F"))
+```
+
+test
+
+## Writing Functions
+
+
+

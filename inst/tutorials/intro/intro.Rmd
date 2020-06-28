@@ -1,0 +1,467 @@
+---
+title: "Introduction to R with Hockey Data"
+subtitle: "Meghan Hall"
+author: "@MeghanMHall"
+output: learnr::tutorial
+runtime: shiny_prerendered
+description: A beginner-friendly introduction to R and the tidyverse with sample hockey data.
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(tidyverse)
+knitr::opts_chunk$set(echo = FALSE)
+hockey_data <- read_csv("PHI_tutorial_data.csv")
+tutorial_options(exercise.cap = "betweenthepipes")
+```
+
+
+## Looking at Our Data
+
+Welcome to our introduction to R! I taught myself R using data that was personally interesting to me -- hockey data. So in this tutorial, we'll use a hockey data set of our own to explore some of the basic functions of the tidyverse (a set of packages that use a similar style) and learn some fundamentals for basic data exploration and manipulation.
+
+This data set is a small sample of games from the 2019-20 NHL season. Let's go through some various methods to learn more about this data set.
+
+**You can type and run your own code in these boxes. I'll often give you some syntax to get started, and if you get stuck, you can hit the solution button. Don't add any code to the code editor here, just press the Run Code button.**
+
+```{r glimpse, exercise = TRUE, exercise.eval = FALSE}
+# This is an example of a comment! Lines that start with # aren't run as code.
+# You don't have to type anything else here.
+glimpse(hockey_data)
+```
+
+Shown above is the `glimpse()` function. The bulk of the work in R is done with functions, which come from packages (as I mentioned, we're working mainly with the tidyverse package in this tutorial). You call a function with its name, like we just did with `glimpse()`, followed by its arguments in parentheses. This function only has one argument, which is the name of the data set itself, `hockey_data`. You can also create your own functions, which is extremely useful but beyond the scope of this intro tutorial.
+
+The `glimpse()` function gives us a handy basic summary of our data. We know there are 2501 observations (or rows) and 46 variables (or columns), and we can see a little bit of the data. If we're only interested in seeing all the variable names, we can call the `names()` function.
+
+*The code block above used the `glimpse()` function. Here, try using the `names()` function, again with the name of the data set as the only argument.*
+
+``` {r names, exercise = TRUE, exercise.eval = FALSE}
+
+```
+
+
+```{r names-solution}
+names(hockey_data)
+```
+
+Those two functions are handy for knowing what's in our data, but it's often nice to just look at a sample of the raw data, as well. Try using the `head()` function.
+
+*Use the `head()` function, again with the name of the data set as the only argument.*
+
+``` {r head, exercise = TRUE, exercise.eval = FALSE}
+
+```
+
+```{r head-solution}
+head(hockey_data)
+```
+
+The `head()` function will show, by default, the first six rows of our data frame. However, we can add an **additional argument** to this function to specify the number of rows. Lots of function arguments, like this one, are optional and aren't necessary for the function to run but allow you to override the defaults and be more specific in what you want.
+
+*Add `n = 10` as a second argument to this function, preceded by a comma after the name of the data set.*
+
+``` {r head-2, exercise = TRUE, exercise.eval = FALSE}
+head(hockey_data)
+```
+
+```{r head-2-solution}
+head(hockey_data, n = 10)
+```
+
+Thanks to these functions, we can see that in our data, there is one row per tracked event (e.g., a faceoff or a goal or a line change) that provides details of that event: what time it occurred, which players were on the ice, etc. Important variables that we're going to use going forward include `game_id`, `event_type`, and `event_player_1`.
+
+## Exploring Our Data
+
+Let's experiment with a few more functions to answer some more questions about this data set. We know that the data set covers some games from the 2019-20 NHL season, and our functions in the previous section (`glimpse()`, `names()`, and `head()`) showed us the variable names and a few of the raw observations.
+
+One of our first questions might be: how many games are in this data set? We can use the handy `count()` function to figure this out, but which variable should we actually count? We can't just count the total number of rows, as it's obvious from viewing the output from the `head()` function that there are multiple rows per game. So this is where the concept of a unique identifier really comes in handy. In this data set, `game_id` is the unique identifier for each game.
+
+*Use the `count()` function, which has two arguments, separated by a comma: the name of the data set (`hockey_data`) and the name of the variable being counted (`game_id`).*
+
+```{r count, exercise = TRUE, exercise.eval = FALSE}
+
+```
+
+```{r count-solution}
+count(hockey_data, game_id)
+```
+
+We can see that this data set has four unique games, and each game has hundreds of events (or rows, or observations). A next natural question would be: when did these games take place, and which teams played in them?
+
+*Start with the same `count()` function as above, but add three additional arguments: `game_date`, `home_team`, `away_team`.*
+
+```{r count-2, exercise = TRUE, exercise.eval = FALSE}
+count(hockey_data, game_id)
+```
+
+```{r count-2-solution}
+count(hockey_data, game_id, game_date, home_team, away_team)
+```
+
+From the output above, we can see that this data set contains four games, from late November 2019, that Philadelphia played against Carolina (CAR), Calgary (CGY), Vancouver (VAN), and Columbus (CBJ). Two of these were home games and two were away games.
+
+Next, let's use `filter()`, one of the most useful functions in the tidyverse, to answer another question with this data: which players scored goals in these games? `filter()` keeps only certain rows (also known as observations) based on the criteria you specify, and to answer this question, we only want to keep rows that represent goals. That is, the `event_type` field will be equal to `GOAL`.   
+
+**Below, complete the `filter()` function so that the `event_type` variable is filtered only to the value of `GOAL`. (You'll notice that the code uses a double equal sign. That is necessary when you're testing for equality, like we're doing here. When you're creating and assigning variables, which we'll discuss later, you only use one equal sign.)**
+
+```{r filter, exercise = TRUE, exercise.eval = FALSE}
+filter(hockey_data, event_type == "")
+```
+
+```{r filter-solution}
+filter(hockey_data, event_type == "GOAL")
+```
+
+The output resulting from the code above appropriately filters our data set to show only the goal events, but there are still so many variables in the view that it's not easy to answer our direct question of who scored these goals. To streamline this output, let's try another tidyverse function: `select()`. While `filter()` keeps certain observations, `select()` keeps certain variables (columns).
+
+**The first argument of the `select()` function below is the name of the data set, `hockey_data`. You can add more arguments in order to select which columns you want. Here, only `event_type` is selected. Add two additional arguments, separated by commas, so that `event_team` and `event_player_1` (the player who scored the goal) are also selected.**
+
+```{r select, exercise = TRUE, exercise.eval = FALSE}
+select(hockey_data, event_type)
+```
+
+```{r select-solution}
+select(hockey_data, event_type, event_team, event_player_1)
+```
+
+This code works as we would expect, but of course, now our filtering is gone! In order to combine those two statements (asking R to `filter()` and `select()` in the same chunk of code), we need to introduce a new operator known as the pipe: %>% The pipe is extremely useful whenever you want to perform a sequence of steps on an object. Here, we can use the pipe to tell R which object we're working with (our data frame, `hockey_data`, which means we don't have to input that as an argument to every function) as well as which actions we want to perform (`filter()` and `select()`). The pipe evaluates each step in order and passes the result of each step on to the next.
+
+**Below, the skeleton of the code is already written for you. Fill in the `filter()` and `select()` statements with the same arguments as in the previous two exercises. Note that when you're using the pipe and starting with your object (`hockey_data` in this example), you *don't* need to add the name of the data frame as the first argument.**
+
+```{r pipe, exercise = TRUE, exercise.eval = FALSE}
+hockey_data %>%
+  filter() %>%
+  select()
+```
+
+```{r pipe-solution}
+hockey_data %>%
+  filter(event_type == "GOAL") %>%
+  select(event_type, event_team, event_player_1)
+```
+
+The output from the code above should show the 21 observations in this data set that have an `event_type` of `GOAL` and the three variables that we added to our `select()` function.
+
+Next, let's go over two other important tidyverse functions, `group_by()` and `summarize()`, which often work in combination. `group_by()` allows you to specify how data should be grouped, and `summarize()` can perform further actions on those groups separately. These functions are essential for data aggregation (and are similar in theory to how a pivot table works in Excel).
+
+We can use these two functions to answer another question from this data: which team had the most shots on goal? Shots on goal (abbreviated as SOG) is a common hockey stat that includes goals as well as shots (i.e., shots on goal that the goalie saved). In order to capture two separate event types in our filter statement, goals and shots, we'll have to use the *or* operator: | That will look like this: `filter(event_type == "GOAL" | event_type == "SHOT")`.
+
+**In the code below, fill in the `filter()` statement as described above and add the `event_team` variable as an argument to the `group_by()` function.**
+
+```{r group, exercise = TRUE, exercise.eval = FALSE}
+hockey_data %>%
+  filter() %>%
+  group_by() %>%
+  summarize(shots_on_goal = n())
+```
+
+```{r group-solution}
+hockey_data %>%
+  filter(event_type == "GOAL" | event_type == "SHOT") %>%
+  group_by(event_team) %>%
+  summarize(shots_on_goal = n())
+```
+
+The code above filters the original data frame to just `SHOT` and `GOAL` observations and groups by the `event_team` variable. (The only variables that show in the output are those that are specified in `group_by()` and those that are created with `summarize()`.) Our `summarize()` function in this example is quite simple and just uses `n()` to create a new variable called `shots_on_goal` that counts the number of rows. (Since we've already used `filter()`, we know all that our observations are shots on goal.) There are many other function options you can use with `summarize()`, including `sum()`, `mean()`, and `max()`.
+
+You can also add more variables to the `group_by()` function to further slice your data. In the example above, we only grouped by `event_team`, but we can add `game_id` as well to see the shots on goal for each team in each game.
+
+**In the code below, add the `game_id` variable as another argument to the `group_by()` function, separated by a comma.**
+
+```{r group-2, exercise = TRUE, exercise.eval = FALSE}
+hockey_data %>%
+  filter(event_type == "GOAL" | event_type == "SHOT") %>%
+  group_by(event_team) %>%
+  summarize(shots_on_goal = n())
+```
+
+```{r group-2-solution}
+hockey_data %>%
+  filter(event_type == "GOAL" | event_type == "SHOT") %>%
+  group_by(event_team, game_id) %>%
+  summarize(shots_on_goal = n())
+```
+
+We can use yet another function called `arrange()` to sort this data, so we can see which team had the most shots on goal in a game. The default sort order for the `arrange()` function is ascending, so if you want the order to be descending, you need to use the `desc()` function within the `arrange()` function. That will look like this: `arrange(desc(shots_on_goal))`.
+
+**In the code below, add another line at the bottom (don't forget the pipe!) with the `arrange()` function, as described above.**
+
+```{r arrange, exercise = TRUE, exercise.eval = FALSE}
+hockey_data %>%
+  filter(event_type == "GOAL" | event_type == "SHOT") %>%
+  group_by(event_team, game_id) %>%
+  summarize(shots_on_goal = n())
+```
+
+```{r arrange-solution}
+hockey_data %>%
+  filter(event_type == "GOAL" | event_type == "SHOT") %>%
+  group_by(event_team, game_id) %>%
+  summarize(shots_on_goal = n()) %>%
+  arrange(desc(shots_on_goal))
+```
+
+## Manipulating Our Data
+
+So far we've looked at our data, using functions like `glimpse()` and `head()`, and have also started to explore it further using functions like `filter()`, `select()`, `group_by()`, `summarize()`, and `arrange()`. In this section, we can start to *manipulate* our data set and make more changes to it. We've already seen that you can create variables with the `group_by()` and `summarize()` function combination (like we did in the previous section with our `shots_on_goal` variable), but in this section we'll explore the `mutate()` function to easily create new variables. 
+
+Usually, the new variables you want to create will be based on values of your existing variables. So in order to create them, we need to use a conditional statement function like `ifelse()` within our `mutate()` function. (There's another function called `case_when()` that is often more elegant to use if you have multiple conditions. We'll go over an example using `case_when()` later in this section.)
+
+Let's work through a series of examples in order to answer another question about this data: in these four games, what were the players' shooting percentages? We've already discussed shots on goal (which are all events that have an `event_type` of SHOT or GOAL), and a skater's shooting percentage is simply the number of goals divided by the total number of shots on goal. To start, we need a `shot_on_goal` variable that will act as the denominator of that calculation. That is, we need a new variable that will equal 1 if the event is a `SHOT` or a `GOAL`. To do this, we'll use `ifelse()` and `mutate()`.
+
+The `ifelse()` function has three main arguments: the conditional statement, the value of the variable if the condition is true, and the value of the variable if the condition is false. Here, in the code below, we'll create this new `shot_on_goal` variable in order to more easily find the shooting percentage for our skaters. (Within the `mutate()` function below, you'll notice both types of equal signs. We use a single equal sign to assign the variable `shot_on_goal` but a double equal sign to test for equality in our `ifelse()` statement.)
+
+**In the code below, the `mutate()` function is already set: we're creating a new variable called `shot_on_goal` that equals 1 if the `event_type` is `SHOT` or `GOAL` and equals 0 if it is not. For this exercise, we're only interested in the Philadelphia players (as they've played the most games), so in the `filter()` statement, set `event_team` equal to "PHI". Also, fill in the `select()` function with the following variables: game_id, event_player_1, event_type.**
+
+```{r mutate, exercise = TRUE, exercise.eval = FALSE}
+hockey_data %>%
+  filter() %>%
+  select() %>%
+  mutate(shot_on_goal = ifelse(event_type == "SHOT" | event_type == "GOAL", 1, 0))
+```
+
+```{r mutate-solution}
+hockey_data %>%
+  filter(event_team == "PHI") %>%
+  select(game_id, event_player_1, event_type) %>%
+  mutate(shot_on_goal = ifelse(event_type == "SHOT" | event_type == "GOAL", 1, 0))
+```
+
+You might have to page through a couple pages of output above to find a `shot_on_goal` that equals 1, but that should be true for every `event_type` of `SHOT` or `GOAL.` And now that we've identified the shots on goal (i.e., the denominator of the shooting percentage fraction), but we can separate out the goal events in order to get the numerator.
+
+You can create multiple variables within the `mutate()` function, as you can see below, just separate them with a comma (and it's common convention to put each variable on a separate line for better readability).
+
+**In the code below, fill in the appropriate `ifelse()` statement to create a `goal` variable that equals 1 if the `event_type` is `GOAL` and 0 if it is not.**
+
+```{r mutate-2, exercise = TRUE, exercise.eval = FALSE}
+hockey_data %>%
+  filter(event_team == "PHI") %>%
+  select(game_id, event_player_1, event_type) %>%
+  mutate(shot_on_goal = ifelse(event_type == "SHOT" | event_type == "GOAL", 1, 0),
+         goal = )
+```
+
+```{r mutate-2-solution}
+hockey_data %>%
+  filter(event_team == "PHI") %>%
+  select(game_id, event_player_1, event_type) %>%
+  mutate(shot_on_goal = ifelse(event_type == "SHOT" | event_type == "GOAL", 1, 0),
+         goal = ifelse(event_type == "GOAL", 1, 0))
+```
+
+And now that we have the goals identified, as well as the shots on goal, we can return to our familiar `group_by()` and `summarize()` functions in order to find the sums of these two new variables for each player.
+
+**In the code below, fill out the `group_by()` and `summarize()` functions. Our `group_by()` variable will be `event_player_1`, and our two variables created with `summarize()` will take the `sum()` of the two variables we created with `mutate()`, `shot_on_goal` and `goal`. Lastly, complete the `filter()` function such that our new `sum_shots_on_goal` variable is greater than zero.**
+
+```{r mutate-3, exercise = TRUE, exercise.eval = FALSE}
+hockey_data %>%
+  filter(event_team == "PHI") %>%
+  select(game_id, event_player_1, event_type) %>%
+  mutate(shot_on_goal = ifelse(event_type == "SHOT" | event_type == "GOAL", 1, 0),
+         goal = ifelse(event_type == "GOAL", 1, 0)) %>%
+  group_by() %>%
+  summarize(sum_shots_on_goal = ,
+            sum_goals = ) %>%
+  filter()
+```
+
+```{r mutate-3-solution}
+hockey_data %>%
+  filter(event_team == "PHI") %>%
+  select(game_id, event_player_1, event_type) %>%
+  mutate(shot_on_goal = ifelse(event_type == "SHOT" | event_type == "GOAL", 1, 0),
+         goal = ifelse(event_type == "GOAL", 1, 0)) %>%
+  group_by(event_player_1) %>%
+  summarize(sum_shots_on_goal = sum(shot_on_goal),
+            sum_goals = sum(goal)) %>%
+  filter(sum_shots_on_goal > 0)
+```
+
+You can see from the output above that now we have a row per player (`event_player_1`), for each player that has at least one shot on goal. Our last step in this example is to use `mutate()` again and create our shooting percentage.
+
+**In the code below, complete the `mutate()` function to create the new `sh_perc` variable, which is `sum_goals` divided by `sum_shots_on_goal`: `sum_goals / sum_shots_on_goal`.**
+
+```{r mutate-4, exercise = TRUE, exercise.eval = FALSE}
+hockey_data %>%
+  filter(event_team == "PHI") %>%
+  select(game_id, event_player_1, event_type) %>%
+  mutate(shot_on_goal = ifelse(event_type == "SHOT" | event_type == "GOAL", 1, 0),
+         goal = ifelse(event_type == "GOAL", 1, 0)) %>%
+  group_by(event_player_1) %>%
+  summarize(sum_shots_on_goal = sum(shot_on_goal),
+            sum_goals = sum(goal)) %>%
+  filter(sum_shots_on_goal > 0) %>%
+  mutate(sh_perc = )
+```
+
+```{r mutate-4-solution}
+hockey_data %>%
+  filter(event_team == "PHI") %>%
+  select(game_id, event_player_1, event_type) %>%
+  mutate(shot_on_goal = ifelse(event_type == "SHOT" | event_type == "GOAL", 1, 0),
+         goal = ifelse(event_type == "GOAL", 1, 0)) %>%
+  group_by(event_player_1) %>%
+  summarize(sum_shots_on_goal = sum(shot_on_goal),
+            sum_goals = sum(goal)) %>%
+  filter(sum_shots_on_goal > 0) %>%
+  mutate(sh_perc = sum_goals / sum_shots_on_goal)
+```
+
+And now we can see the shooting percentage for each player. You could also use the `arrange()` function, like we saw in the last section, to sort this data: `arrange(desc(sh_perc))`. And if you wanted to see this decimal expressed as a percentage, you could use the `round()` function within `mutate()`: `mutate(sh_perc = round((sum_goals / sum_shots_on_goal) * 100, 2))`.
+
+Let's go through one last example using the combination of `group_by()`, `summarize()`, and `mutate()` to answer another question: how many standings points did Philadelphia get in each of these games? But in order to answer that, we need to address another question first: which games ended in regulation and which did not? A regulation NHL game has three periods, and the period of each event in this data set is described by the `game_period` variable. For data recording purposes, overtime has a value of 4 for `game_period` and the shootout has a value of 5.
+
+So in order to figure out whether each game ended in regulation, overtime, or a shootout, we can group our data per game and use the `max()` function within `summarize()` to figure out the maximum value of `game_period`.
+
+**In the code below, add `game_id` to the `group_by()` function and in `summarize()`, find the `max()` of `game_period`.**
+
+
+```{r regulation-1, exercise = TRUE, exercise.eval = FALSE}
+hockey_data %>%
+  group_by() %>%
+  summarize(max_period = )
+```
+
+```{r regulation-1-solution}
+hockey_data %>%
+  group_by(game_id) %>%
+  summarize(max_period = max(game_period))
+```
+
+We can see in the output above that three of these games ended in regulation and one went to the shootout. What if we wanted to create a new variable, `game_type` that specified this? We could use multiple `ifelse()` statements within our `mutate()` function, or since we have multiple conditions, we can try `case_when()`. As we briefly discussed at the beginning of this section, `case_when()` is often easier to write (and read) when there are multiple conditions.
+
+The syntax of `case_when()` starts with the condition (such as `max_period == 3`) and then has the value *if true* after a tilde. Each condition is separated by a comma and is usually on a new line for better readability.
+
+**Fill in the rest of the syntax for the `case_when()` statement below. A `max_period` of 4 will equal "overtime" and 5 will equal "shootout."**
+
+
+```{r regulation, exercise = TRUE, exercise.eval = FALSE}
+hockey_data %>%
+  group_by(game_id) %>%
+  summarize(max_period = max(game_period)) %>%
+  mutate(game_type = case_when(max_period == 3 ~ "regulation",
+                               
+                               ))
+```
+
+```{r regulation-solution}
+hockey_data %>%
+  group_by(game_id) %>%
+  summarize(max_period = max(game_period)) %>%
+  mutate(game_type = case_when(max_period == 3 ~ "regulation",
+                               max_period == 4 ~ "overtime",
+                               max_period == 5 ~ "shootout"))
+```
+
+In this introduction, we've explored and manipulated our data with the help of some of the most common `tidyverse` functions: `filter()`, `select()`, `group_by()`, `summarize()`, and `mutate()`. Continue on to the next section in order to practice these functions with a selection of exercises!
+
+## Exercises
+
+In each of the exercises below, I've provided some of the syntax as a guide. You can erase the starting code if you'd rather start from scratch, and if you get stuck, just click the solution button.
+
+### Exercise 1
+
+In the previous section, we found the shooting percentage per player. In the exercise below, find the shooting percentage per team per game, at 5v5 only. (Hint: the variable of interest for the filter is `game_strength_state`.)
+
+```{r shperc, exercise = TRUE, exercise.eval = FALSE}
+hockey_data %>%
+  filter() %>%
+  mutate(shot_on_goal = ,
+          goal = ) %>%
+  group_by() %>%
+  summarize(sum_shots_on_goal = ,
+            sum_goals = ) %>%
+  filter(sum_shots_on_goal > 0) %>%
+  mutate(sh_perc = )
+```
+
+```{r shperc-solution}
+hockey_data %>%
+  filter(game_strength_state == "5v5") %>%
+  mutate(shot_on_goal = ifelse(event_type == "SHOT" | event_type == "GOAL", 1, 0),
+          goal = ifelse(event_type == "GOAL", 1, 0)) %>%
+  group_by(game_id, event_team) %>%
+  summarize(sum_shots_on_goal = sum(shot_on_goal),
+            sum_goals = sum(goal)) %>%
+  filter(sum_shots_on_goal > 0) %>%
+  mutate(sh_perc = sum_goals / sum_shots_on_goal)
+```
+
+### Exercise 2
+
+Which team won each game? (Hint: use the `home_score` and `away_score` variables and add `home_team` and `away_team` to `group_by()`.)
+
+```{r standings, exercise = TRUE, exercise.eval = FALSE}
+hockey_data %>%
+  group_by() %>%
+  summarize(max_home_score = ,
+            max_away_score = ) %>%
+  mutate(winning_team = ifelse())
+```
+
+```{r standings-solution}
+hockey_data %>%
+  group_by(game_id, home_team, away_team) %>%
+  summarize(max_home_score = max(home_score),
+            max_away_score = max(away_score)) %>%
+  mutate(winning_team = ifelse(max_home_score > max_away_score, home_team, away_team))
+```
+
+### Exercise 3
+
+What was the faceoff win percentage for Philadelphia in each game? (Hint: the `event_type` for faceoffs is `FAC`, and the faceoff win percentage is the number of faceoff wins divided by the total number of faceoffs. Whichever team is listed as the `event_team` for the faceoff event is the team that won the faceoff.)
+
+```{r faceoff, exercise = TRUE, exercise.eval = FALSE}
+hockey_data %>%
+  filter() %>%
+  mutate(PHI_FO_win = ifelse() %>%
+  group_by(game_id) %>%
+  summarize(FO_wins = ,
+            FO_total = n()) %>%
+  mutate(FO_win_perc = )
+```
+
+```{r faceoff-solution}
+hockey_data %>%
+  filter(event_type == "FAC") %>%
+  mutate(PHI_FO_win = ifelse(event_team == "PHI", 1, 0)) %>%
+  group_by(game_id) %>%
+  summarize(FO_wins = sum(PHI_FO_win),
+            FO_total = n()) %>%
+  mutate(FO_win_perc = FO_wins / FO_total)
+```
+
+### Exercise 4
+
+How many shot attempts did each player get? A shot attempt is any observation with an `event_type` of `GOAL`, `SHOT`, `MISS`, or `BLOCK`. It quickly gets unwieldy writing out a lot of "or" statements, so we can also use a handy `%in%` operator: `filter(event_type %in% c("SHOT", "BLOCK", "MISS", "GOAL"))`. The `c()` function just indicates that we're creating a vector. 
+
+(Hint: We could use the `group_by()` and `summarize()` combo, but in simple sums like this where we're filtering our data set down to all our observations of interest, it's often easier to just use `count()`. Adding `sort = TRUE` as a second argument to the `count()` function will sort them in descending order.)
+
+```{r corsi, exercise = TRUE, exercise.eval = FALSE}
+hockey_data %>%
+  filter() %>%
+  count()
+```
+
+```{r corsi-solution}
+hockey_data %>%
+  filter(event_type %in% c("SHOT", "BLOCK", "MISS", "GOAL")) %>%
+  count(event_player_1, sort = TRUE)
+```
+
+### Exercise 5
+
+Which player *drew* the most penalties? (Hint: `event_player_2` is the variable that contains the player who drew the penalty, and the `event_type` for a penalty is `PENL`.)
+
+```{r penalty, exercise = TRUE, exercise.eval = FALSE}
+hockey_data %>%
+  filter() %>%
+  count()
+```
+
+```{r penalty-solution}
+hockey_data %>%
+  filter(event_type == "PENL") %>%
+  count(event_player_2, sort = TRUE)
+```
