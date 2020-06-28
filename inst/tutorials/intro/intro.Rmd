@@ -234,7 +234,7 @@ You can create multiple variables within the `mutate()` function, as you can see
 
 **In the code below, fill in the appropriate `ifelse()` statement to create a `goal` variable that equals 1 if the `event_type` is `GOAL` and 0 if it is not.**
 
-```{r mutate-2, exercise = TRUE, exercise.eval = FALSE}
+```{r mutate-2, eval = FALSE, exercise = TRUE, exercise.eval = FALSE}
 hockey_data %>%
   filter(event_team == "PHI") %>%
   select(game_id, event_player_1, event_type) %>%
@@ -254,7 +254,7 @@ And now that we have the goals identified, as well as the shots on goal, we can 
 
 **In the code below, fill out the `group_by()` and `summarize()` functions. Our `group_by()` variable will be `event_player_1`, and our two variables created with `summarize()` will take the `sum()` of the two variables we created with `mutate()`, `shot_on_goal` and `goal`. Lastly, complete the `filter()` function such that our new `sum_shots_on_goal` variable is greater than zero.**
 
-```{r mutate-3, exercise = TRUE, exercise.eval = FALSE}
+```{r mutate-3, eval = FALSE, exercise = TRUE, exercise.eval = FALSE}
 hockey_data %>%
   filter(event_team == "PHI") %>%
   select(game_id, event_player_1, event_type) %>%
@@ -282,7 +282,7 @@ You can see from the output above that now we have a row per player (`event_play
 
 **In the code below, complete the `mutate()` function to create the new `sh_perc` variable, which is `sum_goals` divided by `sum_shots_on_goal`: `sum_goals / sum_shots_on_goal`.**
 
-```{r mutate-4, exercise = TRUE, exercise.eval = FALSE}
+```{r mutate-4, eval = FALSE, exercise = TRUE, exercise.eval = FALSE}
 hockey_data %>%
   filter(event_team == "PHI") %>%
   select(game_id, event_player_1, event_type) %>%
@@ -317,7 +317,7 @@ So in order to figure out whether each game ended in regulation, overtime, or a 
 **In the code below, add `game_id` to the `group_by()` function and in `summarize()`, find the `max()` of `game_period`.**
 
 
-```{r regulation-1, exercise = TRUE, exercise.eval = FALSE}
+```{r regulation-1, eval = FALSE, exercise = TRUE, exercise.eval = FALSE}
 hockey_data %>%
   group_by() %>%
   summarize(max_period = )
@@ -336,7 +336,7 @@ The syntax of `case_when()` starts with the condition (such as `max_period == 3`
 **Fill in the rest of the syntax for the `case_when()` statement below. A `max_period` of 4 will equal "overtime" and 5 will equal "shootout."**
 
 
-```{r regulation, exercise = TRUE, exercise.eval = FALSE}
+```{r regulation, eval = FALSE, exercise = TRUE, exercise.eval = FALSE}
 hockey_data %>%
   group_by(game_id) %>%
   summarize(max_period = max(game_period)) %>%
@@ -364,7 +364,7 @@ In each of the exercises below, I've provided some of the syntax as a guide. You
 
 In the previous section, we found the shooting percentage per player. In the exercise below, find the shooting percentage per team per game, at 5v5 only. (Hint: the variable of interest for the filter is `game_strength_state`.)
 
-```{r shperc, exercise = TRUE, exercise.eval = FALSE}
+```{r shperc, eval = FALSE, exercise = TRUE, exercise.eval = FALSE}
 hockey_data %>%
   filter() %>%
   mutate(shot_on_goal = ,
@@ -392,7 +392,7 @@ hockey_data %>%
 
 Which team won each game? (Hint: use the `home_score` and `away_score` variables and add `home_team` and `away_team` to `group_by()`.)
 
-```{r standings, exercise = TRUE, exercise.eval = FALSE}
+```{r standings, eval = FALSE, exercise = TRUE, exercise.eval = FALSE}
 hockey_data %>%
   group_by() %>%
   summarize(max_home_score = ,
@@ -412,7 +412,7 @@ hockey_data %>%
 
 What was the faceoff win percentage for Philadelphia in each game? (Hint: the `event_type` for faceoffs is `FAC`, and the faceoff win percentage is the number of faceoff wins divided by the total number of faceoffs. Whichever team is listed as the `event_team` for the faceoff event is the team that won the faceoff.)
 
-```{r faceoff, exercise = TRUE, exercise.eval = FALSE}
+```{r faceoff, eval = FALSE, exercise = TRUE, exercise.eval = FALSE}
 hockey_data %>%
   filter() %>%
   mutate(PHI_FO_win = ifelse() %>%
@@ -438,7 +438,7 @@ How many shot attempts did each player get? A shot attempt is any observation wi
 
 (Hint: We could use the `group_by()` and `summarize()` combo, but in simple sums like this where we're filtering our data set down to all our observations of interest, it's often easier to just use `count()`. Adding `sort = TRUE` as a second argument to the `count()` function will sort them in descending order.)
 
-```{r corsi, exercise = TRUE, exercise.eval = FALSE}
+```{r corsi, eval = FALSE, exercise = TRUE, exercise.eval = FALSE}
 hockey_data %>%
   filter() %>%
   count()
@@ -454,7 +454,7 @@ hockey_data %>%
 
 Which player *drew* the most penalties? (Hint: `event_player_2` is the variable that contains the player who drew the penalty, and the `event_type` for a penalty is `PENL`.)
 
-```{r penalty, exercise = TRUE, exercise.eval = FALSE}
+```{r penalty, eval = FALSE, exercise = TRUE, exercise.eval = FALSE}
 hockey_data %>%
   filter() %>%
   count()
