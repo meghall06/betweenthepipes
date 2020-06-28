@@ -214,11 +214,11 @@ The `ifelse()` function has three main arguments: the conditional statement, the
 
 **In the code below, the `mutate()` function is already set: we're creating a new variable called `shot_on_goal` that equals 1 if the `event_type` is `SHOT` or `GOAL` and equals 0 if it is not. For this exercise, we're only interested in the Philadelphia players (as they've played the most games), so in the `filter()` statement, set `event_team` equal to "PHI". Also, fill in the `select()` function with the following variables: game_id, event_player_1, event_type.**
 
-```{r mutate, exercise = TRUE, exercise.eval = FALSE}
+```{r mutate, eval = FALSE, exercise = TRUE, exercise.eval = FALSE}
 hockey_data %>%
   filter() %>%
   select() %>%
-  mutate(shot_on_goal = ifelse())
+  mutate(shot_on_goal = ifelse(event_type == "SHOT" | event_type == "GOAL", 1, 0))
 ```
 
 ```{r mutate-solution}
