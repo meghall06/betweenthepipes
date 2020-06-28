@@ -218,7 +218,7 @@ The `ifelse()` function has three main arguments: the conditional statement, the
 hockey_data %>%
   filter() %>%
   select() %>%
-  mutate(shot_on_goal = ifelse(event_type == "SHOT" | event_type == "GOAL", 1, 0))
+  mutate(shot_on_goal = ifelse(, 1, 0))
 ```
 
 ```{r mutate-solution}
