@@ -10,7 +10,7 @@ description: A beginner-friendly introduction to R and the tidyverse with sample
 ```{r setup, include=FALSE}
 library(learnr)
 library(tidyverse)
-knitr::opts_chunk$set(echo = FALSE)
+#knitr::opts_chunk$set(echo = FALSE)
 hockey_data <- read_csv("PHI_tutorial_data.csv")
 tutorial_options(exercise.cap = "betweenthepipes")
 ```
