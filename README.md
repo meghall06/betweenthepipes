@@ -4,7 +4,7 @@
 
 ### Tutorial Details
 
-* **Introduction to R with Hockey Data**. A beginner-friendly introduction to R and the tidyverse with sample hockey data. Introduces the basic tidyverse functions: `filter()`, `select()`, `arrange()`, `filter()`, `group_by()`, and `summarize()`.
+* **Introduction to R with Hockey Data**. A beginner-friendly introduction to R and the tidyverse with sample hockey data. Introduces the basic tidyverse functions: `filter()`, `select()`, `arrange()`, `filter()`, `mutate()`, `group_by()`, and `summarize()`.
 * **More Data Manipulation**. Going further into data manipulation with details on pivoting data (using `pivot_longer()` and `pivot_wider()`), joining data, and working with strings.
 
 ### How to Access
