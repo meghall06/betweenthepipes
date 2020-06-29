@@ -14,5 +14,5 @@ intro <- function() {
 }
 
 data_manip <- function() {
-  learnr::run_tutorial("data_manip",package = "between the pipes")
+  learnr::run_tutorial("data_manip",package = "betweenthepipes")
 }
