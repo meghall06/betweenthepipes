@@ -26,5 +26,4 @@
 #' @source \url{http://www.naturalstattrick.com/}
 "bio_example"
 
-#' @importFrom tibble tibble
 NULL
