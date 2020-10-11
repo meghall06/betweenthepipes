@@ -18,4 +18,4 @@ Imports:
     magrittr (>= 1.5),
     knitr (>= 1.26),
     stringr (>= 1.4.0)
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1

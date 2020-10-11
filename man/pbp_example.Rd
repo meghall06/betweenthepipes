@@ -4,12 +4,14 @@
 \name{pbp_example}
 \alias{pbp_example}
 \title{Sample of NHL play-by-play data.}
-\format{A data frame with 53940 rows and 10 variables:
+\format{
+A data frame with 53940 rows and 10 variables:
 \describe{
   \item{price}{price, in US dollars}
   \item{carat}{weight of the diamond, in carats}
   ...
-}}
+}
+}
 \source{
 Scraped via the Evolving-Hockey scraper \url{https://github.com/evolvingwild/evolving-hockey/blob/master/EH_scrape_functions.R}
 }

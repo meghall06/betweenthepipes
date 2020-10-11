@@ -4,7 +4,8 @@
 \name{bio_example}
 \alias{bio_example}
 \title{Sample of biographic NHL data.}
-\format{A data frame with 148 rows and 15 variables:
+\format{
+A data frame with 148 rows and 15 variables:
 \describe{
   \item{Player}{player name}
   \item{Position}{player position}
@@ -22,7 +23,8 @@
   \item{Round Pick}{player's draft pick within round}
   \item{Overall Draft Position}{player's overall draft pick}
   ...
-}}
+}
+}
 \source{
 \url{http://www.naturalstattrick.com/}
 }
