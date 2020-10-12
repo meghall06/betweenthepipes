@@ -2,14 +2,14 @@
 
 `betweenthepipes` is an R package that currently holds two tutorials, created with [learnr](https://rstudio.github.io/learnr/index.html). There are also two sample data sets that are useful for learning to work with hockey data.
 
+First, download this package via Github: `devtools::install_github("meghall06/betweenthepipes")`.
+
 ### Tutorial Details
 
 * **Introduction to R with Hockey Data**. A beginner-friendly introduction to R and the tidyverse with sample hockey data. Introduces the basic tidyverse functions: `filter()`, `select()`, `arrange()`, `filter()`, `mutate()`, `group_by()`, and `summarize()`.
 * **More Data Manipulation**. Going further into data manipulation with details on pivoting data (using `pivot_longer()` and `pivot_wider()`), joining data, and working with strings.
 
 ### How to Access Tutorials
-
-First, download this package via Github: `devtools::install_github("meghall06/betweenthepipes")`.
 
 Once the package has been downloaded, there are two options to access the tutorial. You can access each tutorial individually with the following code: 
 
