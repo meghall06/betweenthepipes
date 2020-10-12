@@ -5,8 +5,8 @@ Version: 0.1.0
 Author: Meghan Hall
 Maintainer: Meghan Hall <meghanhall6@gmail.com>
 Description: This package hosts tutorials (created with the learnr
-    package) that are designed to facilitate learning the tidyverse
-    with hockey data.
+    package) and sample data sets that are designed to facilitate 
+    learning the tidyverse with hockey data.
 License: CC0
 Encoding: UTF-8
 LazyData: true
