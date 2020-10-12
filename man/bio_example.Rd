@@ -22,7 +22,6 @@ A data frame with 148 rows and 15 variables:
   \item{Draft Round}{player's draft round}
   \item{Round Pick}{player's draft pick within round}
   \item{Overall Draft Position}{player's overall draft pick}
-  ...
 }
 }
 \source{
@@ -32,7 +31,7 @@ A data frame with 148 rows and 15 variables:
 bio_example
 }
 \description{
-A dataset containing some NHL biographic data from 2019, useful for
+A data set containing some NHL biographic data from 2019, useful for
 practicing joins with the data in pbp_example.
 }
 \keyword{datasets}
