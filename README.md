@@ -36,6 +36,10 @@ pbp_example <- pbp_example
 
 ```
 
+### Other Resources
+
+In October 2020, I gave a tidyverse-focused workshop at the [Carnegie Mellon Sports Analytics Conference](http://www.stat.cmu.edu/cmsac/conference/2020/) using the data available in this package. The slides and code from the workshop are available on my website [here](https://meghan.rbind.io/talk/cmsac/).
+
 #### Data Source
 
 The play-by-play data was scraped using the [Evolving-Hockey](https://evolving-hockey.com/) [R scraper](https://github.com/evolvingwild/evolving-hockey/blob/master/EH_scrape_functions.R) and the biographic data was downloaded from [NaturalStatTrick](http://www.naturalstattrick.com/).
